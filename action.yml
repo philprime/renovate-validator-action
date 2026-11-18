@@ -1,0 +1,14 @@
+name: "Renovate Validator"
+author: "Philip Niedertscheider"
+description: "Validate renovate.json with Renovate's official validator, or skip when no configuration exists"
+branding:
+  icon: "check-circle"
+  color: "blue"
+
+outputs:
+  skipped:
+    description: "Whether validation was skipped because the repository root has no renovate.json"
+
+runs:
+  using: "node24"
+  main: "dist/index.js"

@@ -1,0 +1,34 @@
+{
+  "name": "renovate-validator-action",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Validate a repository's renovate.json with Renovate's official validator",
+  "license": "FSL-1.1-MIT",
+  "type": "module",
+  "scripts": {
+    "setup": "brew bundle && pnpm install --frozen-lockfile && pnpm hooks:install",
+    "build": "ncc build src/index.js --license licenses.txt",
+    "bundle:check": "node scripts/check-bundle.js",
+    "format": "dprint fmt",
+    "format:check": "dprint check",
+    "lint": "node --check src/index.js && node --check scripts/check-bundle.js && node --check tests/main.test.js && node --check tests/main.integration.js && actionlint",
+    "test": "node --test tests/*.test.js",
+    "test:integration": "node --test tests/*.integration.js",
+    "analyze": "pnpm lint && pnpm format:check && pnpm bundle:check",
+    "check": "pnpm analyze && pnpm test && pnpm test:integration",
+    "hooks": "pre-commit run --all-files",
+    "hooks:install": "pre-commit install"
+  },
+  "dependencies": {
+    "@actions/core": "3.0.1",
+    "@actions/exec": "3.0.0"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "0.45.0",
+    "renovate": "44.252.1"
+  },
+  "packageManager": "pnpm@10.30.2",
+  "engines": {
+    "node": ">=24.11.0 <25"
+  }
+}

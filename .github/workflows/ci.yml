@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Renovate validation (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - name: Checkout the exact workflow commit
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install Node.js dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Test action behavior
+        run: pnpm test
+
+      - name: Test the bundled action with the real validator
+        run: pnpm test:integration
+
+      - name: Validate this repository's Renovate configuration
+        uses: ./
+        timeout-minutes: 5
+
+      - name: Install development tools
+        if: runner.os == 'macOS'
+        run: brew bundle
+
+      - name: Run static checks and verify bundle freshness
+        if: runner.os == 'macOS'
+        run: pnpm analyze
+
+      - name: Run pre-commit checks
+        if: runner.os == 'macOS'
+        run: pnpm hooks
+
+  ci-required-check:
+    name: CI - Required Check
+    needs: [test]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "One of the CI jobs failed or was cancelled."
+          exit 1
+
+      - name: Check test completion
+        if: needs.test.result != 'success'
+        run: |
+          echo "All tests must complete successfully."
+          exit 1

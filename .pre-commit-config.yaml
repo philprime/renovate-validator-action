@@ -1,0 +1,53 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-case-conflict
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: check-xml
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+      - id: detect-private-key
+      - id: end-of-file-fixer
+        exclude: ^dist/
+      - id: trailing-whitespace
+        exclude: ^dist/
+
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.39.0
+    hooks:
+      - id: check-github-actions
+      - id: check-github-workflows
+        args: [--verbose]
+
+  - repo: local
+    hooks:
+      - id: format-dprint
+        name: Format JavaScript, JSON, Markdown, and YAML
+        entry: pnpm format
+        language: system
+        files: \.(js|json|md|yaml|yml)$
+        exclude: ^(dist/|pnpm-lock\.yaml$)
+
+      - id: build-action
+        name: Build action bundle
+        entry: pnpm build
+        language: system
+        files: ^(src/|package\.json$|pnpm-lock\.yaml$|pnpm-workspace\.yaml$)
+        pass_filenames: false
+
+      - id: analyze
+        name: Run static quality checks
+        entry: pnpm analyze
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: test
+        name: Test Renovate validation
+        entry: pnpm test
+        language: system
+        files: ^(src/|tests/|package\.json|pnpm-lock\.yaml|action\.yml)
+        pass_filenames: false

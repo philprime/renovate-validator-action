@@ -1,0 +1,19 @@
+{
+  "indentWidth": 2,
+  "json": {
+    "useTabs": false
+  },
+  "markdown": {},
+  "typescript": {},
+  "excludes": ["**/node_modules/**", "dist/**", "pnpm-lock.yaml"],
+  "yaml": {
+    "indentWidth": 2
+  },
+  "includes": ["**/*.{js,json,md,yaml,yml}"],
+  "plugins": [
+    "npm:@dprint/json@0.25.2",
+    "npm:@dprint/typescript@0.101.0",
+    "npm:@dprint/markdown@0.28.2",
+    "npm:dprint-plugin-yaml@0.6.0"
+  ]
+}
